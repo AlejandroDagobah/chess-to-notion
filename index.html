@@ -5,11 +5,7 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Page Title</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
-
-
-    <script async src='main.js'></script>
     <style>
         body{
             font-family: 'Lato', sans-serif;
@@ -21,9 +17,7 @@
     </style>
 </head>
 <body>
-    <button onclick='userAction("https://api.chess.com/pub/player/sami181/games/2022/10");'>Get INFO</button>
-
-
+    <button id="button-info">Get INFO</button>
     <table id="tabla-registro">
         <tr>
             <td><b>Partida</b></td>
@@ -33,9 +27,14 @@
             <td><b>Razón de la victoria</b></td>
             <td><b>Replay</b></td>
         </tr>
-
     </table>
 
+    <script src="public/javascript/main.js" type="text/javascript"></script>
+    <script>
+        function init() {
+            console.log("hola")
+        }
 
+    </script>
 </body>
 </html>
