@@ -47,32 +47,15 @@ const databaseid = "7b1833b8cd2844fe880b6c2437910d3f";
 
 app.post('/', jsonParser, async function (req, res) {
 
-/*
-    const gameString = req.body.gameString
-    let winnerPlayer = req.body.winnerPlayer
-    let defeatedPlayer = req.body.defeatedPlayer
-    let gameDate = req.body.gameDate
-    let gameTime = req.body.gameTime
-    let termination = req.body.termination
-    let url = req.body.url
-*/
-    const gameString = req.body
+    const game = req.body
 
-    console.log(gameString)
+    console.log(game)
 
-    if (!gameString) {
-
+    if (!game) {
         return res.status(400).send({status: 'failed'})
-        
     }
     res.status(200).send({status: 'recived'})
 
-    let winnerPlayer = req.body.winnerPlayer
-    let defeatedPlayer = req.body.defeatedPlayer
-    let gameDate = req.body.gameDate
-    let gameTime = req.body.gameTime
-    let termination = req.body.termination
-    let url = req.body.url
     try {
         
         const response = await notion.pages.create({
@@ -82,7 +65,7 @@ app.post('/', jsonParser, async function (req, res) {
                     title:[
                         {
                             text:{
-                                content: gameString.value
+                                content: game.gameTitle
                             }
                         }
                     ]
@@ -90,7 +73,7 @@ app.post('/', jsonParser, async function (req, res) {
                 "Winner":{
                     select:{
                         
-                        name: 'sami'
+                        name: game.winnerPlayer
 
                     }
                     
@@ -98,7 +81,7 @@ app.post('/', jsonParser, async function (req, res) {
                 "Defeated":{
                     select:{
                         
-                        name: 'sami'
+                        name: game.defeatedPlayer
 
                     }
                     
@@ -107,7 +90,7 @@ app.post('/', jsonParser, async function (req, res) {
 
                     date:{
                         
-                        start: "2022-10-29T11:00:00.000-04:00"
+                        start: game.date //"2022-10-29T11:00:00.000-04:00"
 
                     }
                     
@@ -116,13 +99,13 @@ app.post('/', jsonParser, async function (req, res) {
                     rich_text:[
                         {
                             text:{
-                                content: '🎃'
+                                content: game.termination
                             }
                         }
                     ]
                 },
                 "Link":{
-                    url:'https://www.chess.com/game/live/60616746903'
+                    url: game.url
                 }
             }
         })
