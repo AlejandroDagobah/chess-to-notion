@@ -1,11 +1,53 @@
-function init() {
-    console.log("hola")
-}
+
+const baseUrl = 'http://localhost:4000/'
+
+const input = document.getElementById('input')
+
+const getBtn = document.getElementById('get')
+const postBtn = document.getElementById('post')
 
 
+getBtn.addEventListener('click', async function (e) {
+    e.preventDefault()
+
+    console.log("Click")
 
 
+    const res = await fetch(baseUrl + 'info', {
+        method: 'GET'
+        
+    })
 
+    const data = await res.json()
+    input.value = data.info
+    console.log(res)
+
+    
+})
+
+postBtn.addEventListener('click', async function (e) {
+    e.preventDefault()
+
+    if(input.value == ''){return}
+
+    const res = await fetch(baseUrl, {
+        
+        method: 'POST',
+        headers:{
+            "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+            parcel: input.value
+        })
+        
+    })
+
+    console.log(res)
+
+    
+
+    
+})
 
 
 

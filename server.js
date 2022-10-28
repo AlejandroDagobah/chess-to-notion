@@ -13,6 +13,8 @@ app.use(cors());
 const PORT = 4000;
 const HOST = "localhost"
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 router.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'))
     
@@ -20,20 +22,52 @@ router.get('/', function(req, res) {
 
 app.use('/', router)
 
+
 app.listen(PORT, HOST, function name() {
 
     console.log("Starting proxy at " + HOST + ":" + PORT);
-
     
 })
 
 
 
-/*
 
+app.get('/info', function (req, res) {
+
+    res.status(200).json({info: 'Hey 🧨'})
+    
+})
+
+app.post('/', )
+
+app.post('/', jsonParser, (req, res) => {
+    const { parcel } = req.body
+
+    console.log(parcel)
+    if (!parcel) {
+
+        return res.status(400).send({status: 'failed'})
+        
+    }
+
+    res.status(200).send({status: 'recived'})
+
+})
+
+
+
+
+
+
+
+/*
 const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
 const databaseid = "7b1833b8cd2844fe880b6c2437910d3f";
+
+
+
+
 
 app.post('/', jsonParser, async function (req, res) {
 
@@ -114,6 +148,11 @@ app.post('/', jsonParser, async function (req, res) {
     }
     
 })
+
+
+/*
+
+
 
 */
 
