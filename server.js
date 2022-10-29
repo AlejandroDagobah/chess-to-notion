@@ -8,7 +8,13 @@ const router = express.Router()
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 
-app.use(cors());
+const corsOptions ={
+    origin:'*', 
+    credentials:true,            //access-control-allow-credentials:true
+    optionSuccessStatus:200,
+ }
+ 
+ app.use(cors(corsOptions)) // Use this after the variable declaration
 
 const PORT = 4000;
 const HOST = "localhost"
@@ -44,6 +50,94 @@ const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRx
 const databaseid = "7b1833b8cd2844fe880b6c2437910d3f";
 
 
+async function queryDB(gameUrl) {
+    const response = await notion.databases.query({
+        database_id: databaseid,
+        filter: {
+            or: [
+                {
+                    property: 'Link',
+                    url: {
+                        contains: gameUrl,
+                    },
+                }
+            ],
+        }
+    });
+
+    return response
+}
+
+async function postInDB(game) {
+
+    const response = await notion.pages.create({
+        parent: {database_id: databaseid},
+        properties:{
+            "Game":{
+                title:[
+                    {
+                        text:{
+                            content: game.gameTitle
+                        }
+                    }
+                ]
+            },
+            "Winner":{
+                select:{
+                    
+                    name: game.winnerPlayer
+
+                }
+                
+            },
+            "Defeated":{
+                select:{
+                    
+                    name: game.defeatedPlayer
+
+                }
+                
+            },
+            "Date":{
+
+                date:{
+                    
+                    start: game.date, //"2022-10-29T11:00:00.000-04:00"
+                    time_zone: "America/Guayaquil"
+                }
+                
+            },
+            "Termination":{
+                select:{
+                    
+                    name: game.termination
+
+                }
+            },
+            "Link":{
+                url: game.url
+            },
+            "White Player":{
+                select:{
+                    
+                    name: game.whitePlayer
+
+                }
+                
+            },
+            "Black Player":{
+                select:{
+                    
+                    name: game.blackPlayer
+
+                }
+                
+            }
+        }
+    })
+    
+}
+
 
 app.post('/', jsonParser, async function (req, res) {
 
@@ -57,60 +151,19 @@ app.post('/', jsonParser, async function (req, res) {
     res.status(200).send({status: 'recived'})
 
     try {
-        
-        const response = await notion.pages.create({
-            parent: {database_id: databaseid},
-            properties:{
-                "Game":{
-                    title:[
-                        {
-                            text:{
-                                content: game.gameTitle
-                            }
-                        }
-                    ]
-                },
-                "Winner":{
-                    select:{
-                        
-                        name: game.winnerPlayer
 
-                    }
-                    
-                },
-                "Defeated":{
-                    select:{
-                        
-                        name: game.defeatedPlayer
+        let notionQuery = queryDB(game.url)
 
-                    }
-                    
-                },
-                "Date":{
+        if((await notionQuery).results.length <= 0)
+        {
+            postInDB(game)
+            console.log("SUCCESS")
 
-                    date:{
-                        
-                        start: game.date //"2022-10-29T11:00:00.000-04:00"
+        }else{
 
-                    }
-                    
-                },
-                "Termination":{
-                    rich_text:[
-                        {
-                            text:{
-                                content: game.termination
-                            }
-                        }
-                    ]
-                },
-                "Link":{
-                    url: game.url
-                }
-            }
-        })
+            console.log("UNABLE TO POST BY DUPLICATE")
 
-        console.log("SUCCESS")
+        }
 
     } catch (error) {
         console.log(error)
