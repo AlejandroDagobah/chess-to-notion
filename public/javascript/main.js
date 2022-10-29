@@ -1,26 +1,42 @@
 
 const baseUrl = 'http://localhost:4000/'
 
-const input = document.getElementById('input')
+const inputDate = document.getElementById('input-date')
 
-const getBtn = document.getElementById('get')
-const postBtn = document.getElementById('post')
+const currentMonthBtn = document.getElementById('currentMonth')
+const customMonthBtn = document.getElementById('customMonth')
 
 const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 const currentDate = new Date();
 
          
-getBtn.addEventListener('click', function(e) {
+currentMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
 
     for (let i = 0; i < usernames.length; i++) {
         const user = usernames[i];
-
-        userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/2022/09') //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+        
+        //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
 
         userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2))
     
         console.log('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' +  ("0" + (currentDate.getMonth() + 1)).slice(-2))
+    
+    }
+
+ })
+
+ customMonthBtn.addEventListener('click', function(e) {
+    e.preventDefault()
+
+    let dateArray = inputDate.value.split("-")
+
+    for (let i = 0; i < usernames.length; i++) {
+        const user = usernames[i];
+
+        userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1]) //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+           
+        console.log('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1])
     
     }
 
@@ -130,7 +146,6 @@ async function userAction(usernames, url) {
     
 }
 
-
 async function postOnNotion(json) {
 
     if(json == null){return}
@@ -146,30 +161,3 @@ async function postOnNotion(json) {
     })
     
 }
-
-
-
-
-
-
-
-
-
-
-/*
-getBtn.addEventListener('click', async function (e) {
-    e.preventDefault()
-
-    console.log("Click")
-
-
-    const res = await fetch(baseUrl + 'info', {
-        method: 'GET'
-        
-    })
-
-    const data = await res.json()
-    input.value = data.info
-    
-})
-*/

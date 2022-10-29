@@ -14,16 +14,20 @@
             border: 1px solid grey;
             padding: 5px;
         }
+        form button{
+            margin: 20px;
+        }
     </style>
 </head>
 <body>
     <form>
 
-        <input type="text" id="input"></input>
 
-        <button id="get" onclick="">GET</button>
+        <button id="currentMonth" onclick="">ACTUALIZAR ESTE MES</button>
 
-        <button id="post">POST</button>
+        <input type="month" min="2022-09" value="2022-10" id="input-date"></input>
+
+        <button id="customMonth">ACTUALIZAR MES PERSONALIZADO</button>
 
     </form>
 

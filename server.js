@@ -19,7 +19,7 @@ const corsOptions ={
 const PORT = 4000;
 const HOST = "localhost"
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/')));
 
 router.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'))
