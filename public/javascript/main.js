@@ -1,5 +1,5 @@
-/*
-//const baseUrl = 'https://alejandrodagobah.github.io'
+
+const baseUrl = 'https://chess-to-notion.onrender.com'
 
 const inputDate = document.getElementById('input-date')
 
@@ -170,5 +170,3 @@ async function postOnNotion(json) {
     })
     
 }
-
-*/
