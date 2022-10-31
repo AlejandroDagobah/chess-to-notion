@@ -5,6 +5,7 @@ const inputDate = document.getElementById('input-date')
 
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
+const userBtn = document.getElementById('userButton')
 
 const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 const currentDate = new Date();
@@ -19,9 +20,7 @@ currentMonthBtn.addEventListener('click', function(e) {
         //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
 
         userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2))
-    
-        console.log('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' +  ("0" + (currentDate.getMonth() + 1)).slice(-2))
-    
+        
     }
 
  })
@@ -35,9 +34,7 @@ currentMonthBtn.addEventListener('click', function(e) {
         const user = usernames[i];
 
         userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1]) //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
-           
-        console.log('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1])
-    
+               
     }
 
  })
@@ -50,6 +47,8 @@ function subtractHours(date, hours){
 }
 
 async function userAction(usernames, url) {
+
+    console.log(url)
     const response = await fetch(url)
     const jsonResponse = await response.json();
 
@@ -145,6 +144,16 @@ async function userAction(usernames, url) {
     }
     
 }
+
+async function getFromChess(){
+    const res = await fetch('',
+    {
+        method: 'GET'
+    })
+    console.log(res)
+
+}
+
 
 async function postOnNotion(json) {
 

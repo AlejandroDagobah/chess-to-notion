@@ -16,8 +16,16 @@ const corsOptions ={
  
  app.use(cors(corsOptions)) // Use this after the variable declaration
 
+ app.use(function (req, res, next){
+    res.header('Access-Control-Allow-Origin', '*');
+    next()
+})
+
+
 const PORT = 4000;
 const HOST = "localhost"
+
+
 
 app.use(express.static(path.join(__dirname, '/')));
 
@@ -36,14 +44,19 @@ app.listen(PORT, HOST, function name() {
 })
 
 
+app.get('/', function (req, res) {
+    request(
+        {url: 'https://api.chess.com/pub/player/sami181'},
+        (error, response, body) => {
+            if (error || response.statusCode !== 200) {
+                return res.status(500).json({ type: 'error', message: err.message });
+            }
 
-
-app.get('/info', function (req, res) {
-
-    res.status(200).json({info: 'Hey 🧨'})
+            res.json(JSON.parse(body))
+        }
+    )
     
 })
-
 
 const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
