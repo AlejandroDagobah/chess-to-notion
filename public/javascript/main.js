@@ -1,5 +1,5 @@
 
-const baseUrl = 'http://localhost:4000/'
+const baseUrl = 'https://alejandrodagobah.github.io/chess-to-notion/'
 
 const inputDate = document.getElementById('input-date')
 
