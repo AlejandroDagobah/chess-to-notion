@@ -22,29 +22,27 @@ const corsOptions ={
 })
 
 
-const PORT = 4000;
-const HOST = "localhost"
-
+const PORT = process.env.PORT || 3001;
 
 
 app.use(express.static(path.join(__dirname, '/')));
 
-router.get('/chess-to-notion', function(req, res) {
+router.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'))
     
 })
 
-app.use('/chess-to-notion', router)
+app.use('/', router)
 
 
-app.listen(PORT, HOST, function name() {
+app.listen(PORT, function name() {
 
-    console.log("Starting proxy at " + HOST + ":" + PORT);
+    console.log("Starting proxy at: " + PORT);
     
 })
+/*
 
-
-app.get('/chess-to-notion', function (req, res) {
+app.get('/', function (req, res) {
     request(
         {url: 'https://api.chess.com/pub/player/sami181'},
         (error, response, body) => {
@@ -152,7 +150,7 @@ async function postInDB(game) {
 }
 
 
-app.post('/chess-to-notion', jsonParser, async function (req, res) {
+app.post('/', jsonParser, async function (req, res) {
 
     const game = req.body
 
@@ -183,3 +181,5 @@ app.post('/chess-to-notion', jsonParser, async function (req, res) {
     }
     
 })
+
+*/
