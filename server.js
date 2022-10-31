@@ -29,12 +29,12 @@ const HOST = "localhost"
 
 app.use(express.static(path.join(__dirname, '/')));
 
-router.get('/', function(req, res) {
+router.get('/chess-to-notion', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'))
     
 })
 
-app.use('/', router)
+app.use('/chess-to-notion', router)
 
 
 app.listen(PORT, HOST, function name() {
@@ -44,7 +44,7 @@ app.listen(PORT, HOST, function name() {
 })
 
 
-app.get('/', function (req, res) {
+app.get('/chess-to-notion', function (req, res) {
     request(
         {url: 'https://api.chess.com/pub/player/sami181'},
         (error, response, body) => {
@@ -152,7 +152,7 @@ async function postInDB(game) {
 }
 
 
-app.post('/', jsonParser, async function (req, res) {
+app.post('/chess-to-notion', jsonParser, async function (req, res) {
 
     const game = req.body
 
