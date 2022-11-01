@@ -13,6 +13,7 @@ button{
     padding: 10px;
     color: #395B64;
     font-weight:900;
+    cursor: pointer;
 }
 
 button:hover{
@@ -22,7 +23,11 @@ button:hover{
     transition: 0.25s;
 
 }
-
+button[disabled]{
+    border: 1px solid #2C3333;
+    background-color: #395B64;
+    color: #2C3333;
+}
 form{
     text-align: center;
 }

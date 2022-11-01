@@ -37,9 +37,7 @@ var globalArray = []
 
 app.get('/info', async function (req, res) {
     res.status(200).json({info: globalArray})
-
     globalArray = []
-
 })
 
 
@@ -51,8 +49,6 @@ app.post('/info', jsonParser, async function (req, res){
         res.status(200).send({status: 'failed'})        
     }
     res.status(200).send({status: 'recived'})
-
-    console.log(parcel)
 
     chessQuery(parcel)
 
@@ -80,7 +76,7 @@ function chessQuery(chessURL) {
 
 
 const currentDate = new Date();
-const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
+const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
 
 
 function subtractHours(date, hours){
@@ -131,60 +127,44 @@ function gamesFilter(userJson) {
 
         }
 
-            if(white.username != undefined)
-            {
+
+        if(usernames.indexOf(white.username) != -1){
+            if(usernames.indexOf(black.username) != -1){
+                console.log(black.result, white.result);
 
                 gameJson.whitePlayer = "♞ " + white.username
                 gameJson.blackPlayer = "♞ " + black.username
-                
-                if (white.result == 'win') {
+
+                if (white.result == 'win' ) {
                     gameJson.winnerPlayer = "♞ " + white.username
                     gameJson.defeatedPlayer = "♞ " + black.username
                 
-                }else if (black.result == 'win') {
+                }
+                if (black.result == 'win') {
                     gameJson.winnerPlayer = "♞ " + black.username
                     gameJson.defeatedPlayer = "♞ " + white.username
     
-                }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
+                }
+                if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
                     gameJson.winnerPlayer = '❌';
                     gameJson.defeatedPlayer = '❌'
-    
+                    console.log(black.result, white.result);
+
                 }
-
-                /*
-                if(usernames.indexOf(white.username) != -1){
-                    if(usernames.indexOf(black.username) != -1){
-
-                        gameJson.whitePlayer = "♞ " + white.username
-                        gameJson.blackPlayer = "♞ " + black.username
-
-                        if (white.result == 'win') {
-                            gameJson.winnerPlayer = "♞ " + white.username
-                            gameJson.defeatedPlayer = "♞ " + black.username
-                        
-                        }else if (black.result == 'win') {
-                            gameJson.winnerPlayer = "♞ " + black.username
-                            gameJson.defeatedPlayer = "♞ " + white.username
-            
-                        }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
-                            gameJson.winnerPlayer = '❌';
-                            gameJson.defeatedPlayer = '❌'
-            
-                        }
-
-
-                    }
-                }
-*/
                 gamesArray.push(gameJson)
 
             }
 
+        }
+
 
 
     }
+    
+    if(globalArray.length < 8){
+        globalArray.push(gamesArray)
 
-    globalArray.push(gamesArray)
+    }
 }
 
 
