@@ -8,7 +8,7 @@ const router = express.Router()
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 
-const corsOptions ={
+const corsOptions = {
     origin:'*', 
     credentials:true,            //access-control-allow-credentials:true
     optionSuccessStatus:200,
@@ -38,21 +38,6 @@ app.use('/', router)
 app.listen(PORT, function name() {
 
     console.log("Starting proxy at: " + PORT);
-    
-})
-/*
-
-app.get('/', function (req, res) {
-    request(
-        {url: 'https://api.chess.com/pub/player/sami181'},
-        (error, response, body) => {
-            if (error || response.statusCode !== 200) {
-                return res.status(500).json({ type: 'error', message: err.message });
-            }
-
-            res.json(JSON.parse(body))
-        }
-    )
     
 })
 
@@ -182,4 +167,18 @@ app.post('/', jsonParser, async function (req, res) {
     
 })
 
+/*
+app.get('/', function (req, res) {
+    request(
+        {url: 'https://api.chess.com/pub/player/sami181'},
+        (error, response, body) => {
+            if (error || response.statusCode !== 200) {
+                return res.status(500).json({ type: 'error', message: err.message });
+            }
+
+            res.json(JSON.parse(body))
+        }
+    )
+    
+})
 */
