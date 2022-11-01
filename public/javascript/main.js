@@ -5,7 +5,6 @@ const inputDate = document.getElementById('input-date')
 
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
-const userBtn = document.getElementById('userButton')
 
 const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 const currentDate = new Date();
@@ -93,48 +92,50 @@ async function userAction(usernames, url) {
 
         //#region Winner & Defeated conditions
 
-            if(usernames.indexOf(white.username) != -1){
-                if(usernames.indexOf(black.username) != -1){
-
-                    if (white.result == 'win') {
-                        gameJson.winnerPlayer = "♞ " + white.username
-                        gameJson.defeatedPlayer = "♞ " + black.username
-
-                        gameJson.whitePlayer = "♞ " + white.username
-                        gameJson.blackPlayer = "♞ " + black.username
-
-                    
-                    }else if (black.result == 'win') {
-                        gameJson.winnerPlayer = "♞ " + black.username
-                        gameJson.defeatedPlayer = "♞ " + white.username
+            if(white.username != undefined)
+            {
+                if(usernames.indexOf(white.username) != -1){
+                    if(usernames.indexOf(black.username) != -1){
+    
+                        if (white.result == 'win') {
+                            gameJson.winnerPlayer = "♞ " + white.username
+                            gameJson.defeatedPlayer = "♞ " + black.username
+    
+                            gameJson.whitePlayer = "♞ " + white.username
+                            gameJson.blackPlayer = "♞ " + black.username
+    
                         
-                        gameJson.blackPlayer = "♞ " + black.username
-                        gameJson.whitePlayer = "♞ " + white.username
+                        }else if (black.result == 'win') {
+                            gameJson.winnerPlayer = "♞ " + black.username
+                            gameJson.defeatedPlayer = "♞ " + white.username
+                            
+                            gameJson.blackPlayer = "♞ " + black.username
+                            gameJson.whitePlayer = "♞ " + white.username
+            
+                        }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
+                            gameJson.winnerPlayer = '❌';
+                            gameJson.defeatedPlayer = '❌'
+    
+                            gameJson.blackPlayer = "♞ " + black.username
+                            gameJson.whitePlayer = "♞ " + white.username
+            
+                        }
+                        
+                        //#region Insert on table
         
-                    }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
-                        gameJson.winnerPlayer = '❌';
-                        gameJson.defeatedPlayer = '❌'
-
-                        gameJson.blackPlayer = "♞ " + black.username
-                        gameJson.whitePlayer = "♞ " + white.username
+                            const table = document.getElementById('tabla-registro');
+                            
+                            table.innerHTML += '<tr><td>'+ gameJson.gameTitle +'</td><td>'+ gameJson.winnerPlayer +'</td><td>'+ gameJson.defeatedPlayer +'</td><td>'+ gameJson.date +'</td><td>'+ gameJson.termination +'</td><td><a href="' + gameJson.url + '">' + gameJson.url + '</a></td><td>'+ gameJson.whitePlayer +'</td><td>'+ gameJson.blackPlayer +'</td></tr>'
         
+                            postOnNotion(gameJson)
+        
+                            
+                        //#endregion
+        
+    
                     }
-                    
-                    //#region Insert on table
-    
-                        const table = document.getElementById('tabla-registro');
-                        
-                        table.innerHTML += '<tr><td>'+ gameJson.gameTitle +'</td><td>'+ gameJson.winnerPlayer +'</td><td>'+ gameJson.defeatedPlayer +'</td><td>'+ gameJson.date +'</td><td>'+ gameJson.termination +'</td><td><a href="' + gameJson.url + '">' + gameJson.url + '</a></td><td>'+ gameJson.whitePlayer +'</td><td>'+ gameJson.blackPlayer +'</td></tr>'
-    
-                        postOnNotion(gameJson)
-    
-                        
-                    //#endregion
-    
-
                 }
             }
-
 
 
         //#endregion
