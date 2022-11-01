@@ -1,153 +1,107 @@
 
 //const baseUrl = 'https://chess-to-notion.onrender.com'
+
 const baseUrl = 'http://localhost:3001'
 const inputDate = document.getElementById('input-date')
-
+const inputText = document.getElementById('input-text')
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
 
 const currentDate = new Date();
-
 const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 
-         
+var playersArray = []
+
+async function getInfo()
+{
+
+    const res = await fetch(baseUrl + '/info', {
+
+        method: 'GET',
+
+    })
+    const data = await res.json()
+
+    console.log(data.info)
+    playersArray = data.info
+}
+
+
+async function postInfo(url)
+{        
+    if(url == '' || url == null){return}
+    const res = await fetch(baseUrl + '/info', {
+
+        method: 'POST',
+        headers:{
+            "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+            parcel: url
+        })
+    })
+    
+}
+
+async function insertRows(playersArray) {
+    
+    for (let i = 0; i < playersArray.length; i++) {
+
+        const playerGames = playersArray[i];
+        
+
+        for (let ii = 0; ii < playerGames.length; ii++) {
+            const game = playerGames[ii];
+
+            //#region Insert on table
+
+            const table = document.getElementById('tabla-registro');
+
+            table.innerHTML += '<tr><td>'+ game.gameTitle +'</td><td>'+ game.winnerPlayer +'</td><td>'+ game.defeatedPlayer +'</td><td>'+ game.date +'</td><td>'+ game.termination +'</td><td><a href="' + game.url + '">' + game.url + '</a></td><td>'+ game.whitePlayer +'</td><td>'+ game.blackPlayer +'</td></tr>'
+        
+            //postOnNotion(gameJson)
+        
+            
+            //#endregion
+            
+        }
+
+
+    }
+}
+
+
 currentMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
     
+    getInfo()
+
+    insertRows(playersArray)
+
+ })
+
+ customMonthBtn.addEventListener('click', function(e) {
+    e.preventDefault()
+
+    //BASADO EN LA FECHA ACTUAL'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
+
     for (let i = 0; i < usernames.length; i++) {
         const user = usernames[i];
-        
-        //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
 
-       postOnNotion('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2))
+        //formato https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+        const chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/2022/10'
+        postInfo(chessURL)
+
+        //console.log('prev ' + chessURL)
     }
 
  })
 
-function subtractHours(date, hours){
-
-    date.setHours(date.getHours() - hours);
-
-    return date;
-}
-
-async function userAction(jsonResponse) {
-
-    console.log(jsonResponse)
-    const response = await fetch(jsonResponse)
-
-    let chessGames = jsonResponse.games;
-
-    for (let i = 0; i < chessGames.length; i++) {
-        const currentGame = chessGames[i];
-
-        const black = currentGame.black
-        const white = currentGame.white
-
-        let pgnArray = currentGame.pgn.split('\n') 
-
-        let id = currentGame.url.substring(32, currentGame.url.length) 
-        let date = pgnArray[2].substring(7, pgnArray[2].length - 2)
-        let time = pgnArray[19].substring(10, pgnArray[19].length - 2)
-        
-        var termination = pgnArray[16].substring(14, pgnArray[16].length - 2)
-        let terminationNoUser = termination.split(" ");
-        let userOfTermination = terminationNoUser.shift()
-
-        const uppercaseWords = str => str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase());
-
-        termination = uppercaseWords(terminationNoUser.join(" ").toString())
-
-        
-        var gmt5Date = subtractHours(new Date(date + ' ' + time + ' GMT-5'), 10)
-        
-        const gameJson = {
-            gameId: id,
-            gameTitle: '🏆',
-            winnerPlayer:'',
-            defeatedPlayer: '',
-            date: gmt5Date.toISOString(), //no sobreescribir en notion las que ya estan hechas
-            termination: termination, // eliminar la primera palabra de la razón de la victoria ej: 'won by checkmate'
-            url: currentGame.url,
-            whitePlayer: '',
-            blackPlayer: ''
-
-        }
-
-
-        //#region Winner & Defeated conditions
-
-            if(white.username != undefined)
-            {
-                if(usernames.indexOf(white.username) != -1){
-                    if(usernames.indexOf(black.username) != -1){
-    
-                        if (white.result == 'win') {
-                            gameJson.winnerPlayer = "♞ " + white.username
-                            gameJson.defeatedPlayer = "♞ " + black.username
-    
-                            gameJson.whitePlayer = "♞ " + white.username
-                            gameJson.blackPlayer = "♞ " + black.username
-    
-                        
-                        }else if (black.result == 'win') {
-                            gameJson.winnerPlayer = "♞ " + black.username
-                            gameJson.defeatedPlayer = "♞ " + white.username
-                            
-                            gameJson.blackPlayer = "♞ " + black.username
-                            gameJson.whitePlayer = "♞ " + white.username
-            
-                        }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
-                            gameJson.winnerPlayer = '❌';
-                            gameJson.defeatedPlayer = '❌'
-    
-                            gameJson.blackPlayer = "♞ " + black.username
-                            gameJson.whitePlayer = "♞ " + white.username
-            
-                        }
-    
-                    }
-                }
-            }
-
-
-        //#endregion
-        //#region Insert on table
-
-        const table = document.getElementById('tabla-registro');
-    
-        table.innerHTML += '<tr><td>'+ gameJson.gameTitle +'</td><td>'+ gameJson.winnerPlayer +'</td><td>'+ gameJson.defeatedPlayer +'</td><td>'+ gameJson.date +'</td><td>'+ gameJson.termination +'</td><td><a href="' + gameJson.url + '">' + gameJson.url + '</a></td><td>'+ gameJson.whitePlayer +'</td><td>'+ gameJson.blackPlayer +'</td></tr>'
-    
-        postOnNotion(gameJson)
-    
-        
-        //#endregion
-
-
-    }
-
-            
-    
-}
-
-async function getFromChess(urlPlayer){
-    const res = await fetch(baseUrl + '/gola',
-    {
-        method: 'GET'
-    })
-
-    const data = await res.json()
-
-    //userAction(data)
-
-
-
-}
+/*
 
 
 async function postOnNotion(url) {
-
-    if(url == null){return}
+    if(url == undefined){return}
 
     const res = await fetch(baseUrl, {
 
@@ -155,14 +109,15 @@ async function postOnNotion(url) {
         headers:{
             "Content-Type": 'application/json'
         },
-        body: JSON.stringify(url)
+        body: JSON.stringify({
+            link: 'here send gameJSON'
+        }) 
+
         
     })
     
 }
 
-
-/*
  customMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
 

@@ -1,32 +1,25 @@
 const express = require('express')
 const app = express();
+const PORT = process.env.PORT || 3001;
+
 const request = require('request')
-const { Client } = require('@notionhq/client')
+const bodyParser = require('body-parser');
+const { response } = require('express');
 const cors = require('cors')
 const path = require('path')
-const router = express.Router()
+const { Client } = require('@notionhq/client')
 
-var bodyParser = require('body-parser');
-const { response } = require('express');
-var jsonParser = bodyParser.json()
+const jsonParser = bodyParser.json()
+const router = express.Router()
 
 const corsOptions = {
     origin:'*', 
     credentials:true,            //access-control-allow-credentials:true
     optionSuccessStatus:200,
  }
- 
- app.use(cors(corsOptions)) // Use this after the variable declaration
 
- app.use(function (req, res, next){
-    res.header('Access-Control-Allow-Origin', '*');
-    next()
-})
-
-
-const PORT = process.env.PORT || 3001;
-
-
+app.use(cors(corsOptions)) // Use this after the variable declaration
+app.use('/', router)
 app.use(express.static(path.join(__dirname, '/')));
 
 router.get('/', function(req, res) {
@@ -34,51 +27,190 @@ router.get('/', function(req, res) {
     
 })
 
-app.use('/', router)
-
-
 app.listen(PORT, function name() {
-
     console.log("Starting proxy at: " + PORT);
-    
+})
+
+var globalArray = []
+
+
+
+app.get('/info', async function (req, res) {
+    res.status(200).json({info: globalArray})
+
+    globalArray = []
+
 })
 
 
+app.post('/info', jsonParser, async function (req, res){
+    const {parcel} = req.body
+
+    if(!parcel)
+    {
+        res.status(200).send({status: 'failed'})        
+    }
+    res.status(200).send({status: 'recived'})
+
+    console.log(parcel)
+
+    chessQuery(parcel)
 
 
-app.get('/gola', async function (req, res) {
+})
 
-    const playersArray = [] 
 
-    const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
+function chessQuery(chessURL) {
 
-    const currentDate = new Date();
 
-    for (let i = 0; i < usernames.length; i++) {
-        const user = usernames[i];
+    request({url: chessURL}, (error, response, body) =>{
 
-        //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
-        var chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
+    if(error || response.statusCode !== 200)
+    {
+        return console.log(error)
+    }
+        var chessUser = JSON.parse(body)
 
-        playersArray.push(chessQuery(chessURL))
+        gamesFilter(chessUser)
+
+    })
+
+
+}
+
+
+const currentDate = new Date();
+const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
+
+
+function subtractHours(date, hours){
+
+    date.setHours(date.getHours() - hours);
+
+    return date;
+}
+
+function gamesFilter(userJson) {
+
+    let gamesArray = []
+    
+    let chessGames = userJson.games;
+    for (let i = 0; i < chessGames.length; i++) {
+        const currentGame = chessGames[i];
+
+        const black = currentGame.black
+        const white = currentGame.white
+
+        let pgnArray = currentGame.pgn.split('\n') 
+
+        let id = currentGame.url.substring(32, currentGame.url.length) 
+        let date = pgnArray[2].substring(7, pgnArray[2].length - 2)
+        let time = pgnArray[19].substring(10, pgnArray[19].length - 2)
+        
+        var termination = pgnArray[16].substring(14, pgnArray[16].length - 2)
+        let terminationNoUser = termination.split(" ");
+        let userOfTermination = terminationNoUser.shift()
+
+        const uppercaseWords = str => str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase());
+
+        termination = uppercaseWords(terminationNoUser.join(" ").toString())
+
+        
+        var gmt5Date = subtractHours(new Date(date + ' ' + time + ' GMT-5'), 10)
+        
+        const gameJson = {
+            gameId: id,
+            gameTitle: '🏆',
+            winnerPlayer:'',
+            defeatedPlayer: '',
+            date: gmt5Date.toISOString(), //no sobreescribir en notion las que ya estan hechas
+            termination: termination, // eliminar la primera palabra de la razón de la victoria ej: 'won by checkmate'
+            url: currentGame.url,
+            whitePlayer: '',
+            blackPlayer: ''
+
+        }
+
+            if(white.username != undefined)
+            {
+
+                gameJson.whitePlayer = "♞ " + white.username
+                gameJson.blackPlayer = "♞ " + black.username
+                
+                if (white.result == 'win') {
+                    gameJson.winnerPlayer = "♞ " + white.username
+                    gameJson.defeatedPlayer = "♞ " + black.username
+                
+                }else if (black.result == 'win') {
+                    gameJson.winnerPlayer = "♞ " + black.username
+                    gameJson.defeatedPlayer = "♞ " + white.username
+    
+                }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
+                    gameJson.winnerPlayer = '❌';
+                    gameJson.defeatedPlayer = '❌'
+    
+                }
+
+                /*
+                if(usernames.indexOf(white.username) != -1){
+                    if(usernames.indexOf(black.username) != -1){
+
+                        gameJson.whitePlayer = "♞ " + white.username
+                        gameJson.blackPlayer = "♞ " + black.username
+
+                        if (white.result == 'win') {
+                            gameJson.winnerPlayer = "♞ " + white.username
+                            gameJson.defeatedPlayer = "♞ " + black.username
+                        
+                        }else if (black.result == 'win') {
+                            gameJson.winnerPlayer = "♞ " + black.username
+                            gameJson.defeatedPlayer = "♞ " + white.username
+            
+                        }else if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed'){
+                            gameJson.winnerPlayer = '❌';
+                            gameJson.defeatedPlayer = '❌'
+            
+                        }
+
+
+                    }
+                }
+*/
+                gamesArray.push(gameJson)
+
+            }
+
+
 
     }
 
-    res.json(playersArray)
-})
+    globalArray.push(gamesArray)
+}
 
+
+
+
+
+
+
+
+
+
+/*
 
 
 app.post('/', jsonParser, async function (req, res) {
-
-    const game = req.body
+    const {game} = req.body
 
     console.log(game)
+
 
     if (!game) {
         return res.status(400).send({status: 'failed'})
     }
+
     res.status(200).send({status: 'recived'})
+    
 
     try {
 
@@ -100,32 +232,6 @@ app.post('/', jsonParser, async function (req, res) {
     }
     
 })
-
-
-
-
-
-function chessQuery(chessURL) {
-
-
-    request({url: chessURL}, (error, response, body) =>{
-
-    if(error || response.statusCode !== 200)
-    {
-        console.log(response)
-
-        return response.status(500).json({type: 'error', message: error.message})
-    }
-        return JSON.parse(body)
-
-
-    })
-
-
-}
-
-
-
 
 
 
@@ -225,3 +331,10 @@ async function postInDB(game) {
 }
 
 
+
+
+ app.use(function (req, res, next){
+    res.header('Access-Control-Allow-Origin', '*');
+    next()
+})
+*/
