@@ -1,0 +1,51 @@
+*{
+    color: #E7F6F2;
+    font-family: 'Montserrat', sans-serif;
+
+}
+body{
+    background-color: #2C3333;
+}
+
+button{
+    background-color: #A5C9CA;
+    border:none;
+    padding: 10px;
+    color: #395B64;
+    font-weight:900;
+}
+
+button:hover{
+    background-color: #395B64;
+    color: #A5C9CA;
+
+    transition: 0.25s;
+
+}
+
+form{
+    text-align: center;
+}
+td{
+    border: 1px solid grey;
+    padding: 5px;
+    border-right: 0px;
+    border-left: 0px;
+    color: #A5C9CA;
+}
+form button{
+    margin: 20px;
+}
+
+#input-date{
+    background-color: #395B64;
+    padding: 10px;
+    color: #ffffff;
+    border: none;
+    outline: none;
+}::-webkit-calendar-picker-indicator{
+    background-color: #ffffff;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}

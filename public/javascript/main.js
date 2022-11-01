@@ -1,39 +1,25 @@
 
-const baseUrl = 'https://chess-to-notion.onrender.com'
-
+//const baseUrl = 'https://chess-to-notion.onrender.com'
+const baseUrl = 'http://localhost:3001'
 const inputDate = document.getElementById('input-date')
 
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
 
-const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 const currentDate = new Date();
+
+const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
 
          
 currentMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
-
+    
     for (let i = 0; i < usernames.length; i++) {
         const user = usernames[i];
         
         //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
 
-        userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2))
-        
-    }
-
- })
-
- customMonthBtn.addEventListener('click', function(e) {
-    e.preventDefault()
-
-    let dateArray = inputDate.value.split("-")
-
-    for (let i = 0; i < usernames.length; i++) {
-        const user = usernames[i];
-
-        userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1]) //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
-               
+       postOnNotion('https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2))
     }
 
  })
@@ -45,11 +31,10 @@ function subtractHours(date, hours){
     return date;
 }
 
-async function userAction(usernames, url) {
+async function userAction(jsonResponse) {
 
-    console.log(url)
-    const response = await fetch(url)
-    const jsonResponse = await response.json();
+    console.log(jsonResponse)
+    const response = await fetch(jsonResponse)
 
     let chessGames = jsonResponse.games;
 
@@ -120,18 +105,6 @@ async function userAction(usernames, url) {
                             gameJson.whitePlayer = "♞ " + white.username
             
                         }
-                        
-                        //#region Insert on table
-        
-                            const table = document.getElementById('tabla-registro');
-                            
-                            table.innerHTML += '<tr><td>'+ gameJson.gameTitle +'</td><td>'+ gameJson.winnerPlayer +'</td><td>'+ gameJson.defeatedPlayer +'</td><td>'+ gameJson.date +'</td><td>'+ gameJson.termination +'</td><td><a href="' + gameJson.url + '">' + gameJson.url + '</a></td><td>'+ gameJson.whitePlayer +'</td><td>'+ gameJson.blackPlayer +'</td></tr>'
-        
-                            postOnNotion(gameJson)
-        
-                            
-                        //#endregion
-        
     
                     }
                 }
@@ -139,26 +112,42 @@ async function userAction(usernames, url) {
 
 
         //#endregion
+        //#region Insert on table
 
+        const table = document.getElementById('tabla-registro');
+    
+        table.innerHTML += '<tr><td>'+ gameJson.gameTitle +'</td><td>'+ gameJson.winnerPlayer +'</td><td>'+ gameJson.defeatedPlayer +'</td><td>'+ gameJson.date +'</td><td>'+ gameJson.termination +'</td><td><a href="' + gameJson.url + '">' + gameJson.url + '</a></td><td>'+ gameJson.whitePlayer +'</td><td>'+ gameJson.blackPlayer +'</td></tr>'
+    
+        postOnNotion(gameJson)
+    
+        
+        //#endregion
 
 
     }
+
+            
     
 }
 
-async function getFromChess(){
-    const res = await fetch('',
+async function getFromChess(urlPlayer){
+    const res = await fetch(baseUrl + '/gola',
     {
         method: 'GET'
     })
-    console.log(res)
+
+    const data = await res.json()
+
+    //userAction(data)
+
+
 
 }
 
 
-async function postOnNotion(json) {
+async function postOnNotion(url) {
 
-    if(json == null){return}
+    if(url == null){return}
 
     const res = await fetch(baseUrl, {
 
@@ -166,8 +155,25 @@ async function postOnNotion(json) {
         headers:{
             "Content-Type": 'application/json'
         },
-        body: JSON.stringify(json)
+        body: JSON.stringify(url)
         
     })
     
 }
+
+
+/*
+ customMonthBtn.addEventListener('click', function(e) {
+    e.preventDefault()
+
+    let dateArray = inputDate.value.split("-")
+
+    for (let i = 0; i < usernames.length; i++) {
+        const user = usernames[i];
+
+        userAction(usernames, 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + dateArray[0] + '/' + dateArray[1]) //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+               
+    }
+
+ })
+*/

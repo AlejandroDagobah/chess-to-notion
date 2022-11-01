@@ -1,11 +1,13 @@
 const express = require('express')
 const app = express();
+const request = require('request')
 const { Client } = require('@notionhq/client')
 const cors = require('cors')
 const path = require('path')
 const router = express.Router()
 
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+const { response } = require('express');
 var jsonParser = bodyParser.json()
 
 const corsOptions = {
@@ -40,6 +42,94 @@ app.listen(PORT, function name() {
     console.log("Starting proxy at: " + PORT);
     
 })
+
+
+
+
+app.get('/gola', async function (req, res) {
+
+    const playersArray = [] 
+
+    const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'jfyoyu777', 'Luligamer1', 'Samueljanu']
+
+    const currentDate = new Date();
+
+    for (let i = 0; i < usernames.length; i++) {
+        const user = usernames[i];
+
+        //url to ask https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
+        var chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
+
+        playersArray.push(chessQuery(chessURL))
+
+    }
+
+    res.json(playersArray)
+})
+
+
+
+app.post('/', jsonParser, async function (req, res) {
+
+    const game = req.body
+
+    console.log(game)
+
+    if (!game) {
+        return res.status(400).send({status: 'failed'})
+    }
+    res.status(200).send({status: 'recived'})
+
+    try {
+
+        let notionQuery = queryDB(game.url)
+
+        if((await notionQuery).results.length <= 0)
+        {
+            postInDB(game)
+            console.log("SUCCESS")
+
+        }else{
+
+            console.log("UNABLE TO POST BY DUPLICATE")
+
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+    
+})
+
+
+
+
+
+function chessQuery(chessURL) {
+
+
+    request({url: chessURL}, (error, response, body) =>{
+
+    if(error || response.statusCode !== 200)
+    {
+        console.log(response)
+
+        return response.status(500).json({type: 'error', message: error.message})
+    }
+        return JSON.parse(body)
+
+
+    })
+
+
+}
+
+
+
+
+
+
+
 
 const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
@@ -135,50 +225,3 @@ async function postInDB(game) {
 }
 
 
-app.post('/', jsonParser, async function (req, res) {
-
-    const game = req.body
-
-    console.log(game)
-
-    if (!game) {
-        return res.status(400).send({status: 'failed'})
-    }
-    res.status(200).send({status: 'recived'})
-
-    try {
-
-        let notionQuery = queryDB(game.url)
-
-        if((await notionQuery).results.length <= 0)
-        {
-            postInDB(game)
-            console.log("SUCCESS")
-
-        }else{
-
-            console.log("UNABLE TO POST BY DUPLICATE")
-
-        }
-
-    } catch (error) {
-        console.log(error)
-    }
-    
-})
-
-/*
-app.get('/', function (req, res) {
-    request(
-        {url: 'https://api.chess.com/pub/player/sami181'},
-        (error, response, body) => {
-            if (error || response.statusCode !== 200) {
-                return res.status(500).json({ type: 'error', message: err.message });
-            }
-
-            res.json(JSON.parse(body))
-        }
-    )
-    
-})
-*/
