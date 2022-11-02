@@ -3,7 +3,6 @@
 
 const baseUrl = 'http://localhost:3001'
 const inputDate = document.getElementById('input-date')
-const inputText = document.getElementById('input-text')
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
 const postInTableBtn = document.getElementById('postInTable')
@@ -25,7 +24,8 @@ async function getInfo()
     const data = await res.json()
 
     playersArray = data.info
-    console.log(playersArray);
+    insertRows(playersArray)
+
 }
 
 async function postInfo(url)
@@ -42,7 +42,7 @@ async function postInfo(url)
         })
 
     })
-    console.log(url);
+    console.log(res);
 }
 
 function insertRows(playersArray) {
@@ -60,9 +60,10 @@ function insertRows(playersArray) {
 
             table.innerHTML += '<tr><td>'+ game.gameTitle +'</td><td>'+ game.winnerPlayer +'</td><td>'+ game.defeatedPlayer +'</td><td>'+ game.date +'</td><td>'+ game.termination +'</td><td><a href="' + game.url + '">' + game.url + '</a></td><td>'+ game.whitePlayer +'</td><td>'+ game.blackPlayer +'</td></tr>'        
             
+            postOnNotion(game)
+
             //#endregion
 
-            //postOnNotion(gameJson)
             console.log('player:', i, 'game:', ii, 'inserting in table...');
 
             
@@ -74,7 +75,6 @@ function insertRows(playersArray) {
     playersArray = []
 
 }
-
 
 currentMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
@@ -111,29 +111,21 @@ currentMonthBtn.addEventListener('click', function(e) {
  postInTableBtn.addEventListener('click', function(e) {
     e.preventDefault()
 
+
     getInfo()
 
-    insertRows(playersArray)
  })
 
-/*
+async function postOnNotion(gameInfo) {
 
-
-async function postOnNotion(url) {
-    if(url == undefined){return}
-
-    const res = await fetch(baseUrl, {
+    if(gameInfo == '' || gameInfo == null){return}
+    const res = await fetch(baseUrl + '/notion', {
 
         method: 'POST',
         headers:{
             "Content-Type": 'application/json'
         },
-        body: JSON.stringify({
-            link: 'here send gameJSON'
-        }) 
+        body: JSON.stringify(gameInfo)
 
-        
     })
-    
 }
-*/

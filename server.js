@@ -110,7 +110,6 @@ function gamesFilter(userJson) {
         const uppercaseWords = str => str.replace(/^(.)|\s+(.)/g, c => c.toUpperCase());
 
         termination = uppercaseWords(terminationNoUser.join(" ").toString())
-
         
         var gmt5Date = subtractHours(new Date(date + ' ' + time + ' GMT-5'), 10)
         
@@ -130,8 +129,6 @@ function gamesFilter(userJson) {
 
         if(usernames.indexOf(white.username) != -1){
             if(usernames.indexOf(black.username) != -1){
-                console.log(black.result, white.result);
-
                 gameJson.whitePlayer = "♞ " + white.username
                 gameJson.blackPlayer = "♞ " + black.username
 
@@ -148,16 +145,12 @@ function gamesFilter(userJson) {
                 if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
                     gameJson.winnerPlayer = '❌';
                     gameJson.defeatedPlayer = '❌'
-                    console.log(black.result, white.result);
-
                 }
                 gamesArray.push(gameJson)
 
             }
 
         }
-
-
 
     }
     
@@ -169,49 +162,6 @@ function gamesFilter(userJson) {
 
 
 
-
-
-
-
-
-
-
-/*
-
-
-app.post('/', jsonParser, async function (req, res) {
-    const {game} = req.body
-
-    console.log(game)
-
-
-    if (!game) {
-        return res.status(400).send({status: 'failed'})
-    }
-
-    res.status(200).send({status: 'recived'})
-    
-
-    try {
-
-        let notionQuery = queryDB(game.url)
-
-        if((await notionQuery).results.length <= 0)
-        {
-            postInDB(game)
-            console.log("SUCCESS")
-
-        }else{
-
-            console.log("UNABLE TO POST BY DUPLICATE")
-
-        }
-
-    } catch (error) {
-        console.log(error)
-    }
-    
-})
 
 
 
@@ -236,7 +186,7 @@ async function queryDB(gameUrl) {
             ],
         }
     });
-
+    console.log('response', response.results);
     return response
 }
 
@@ -311,10 +261,39 @@ async function postInDB(game) {
 }
 
 
+app.post('/notion', jsonParser, async function (req, res) {
 
+    const game = req.body
 
- app.use(function (req, res, next){
-    res.header('Access-Control-Allow-Origin', '*');
-    next()
+    if (!game) {
+        return res.status(400).send({status: 'failed'})
+    }
+
+    res.status(200).send({status: 'recived'})
+    
+
+    try {
+
+        var notionQuery = queryDB(game.url)
+        if(notionQuery != undefined)
+        {
+            if((await notionQuery).results.length == 0)
+            {
+                console.log(notionQuery)
+
+                postInDB(game)
+                console.log("SUCCESS")
+    
+            }else{
+    
+                console.log("UNABLE TO POST BY DUPLICATE")
+    
+            }
+    
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+
 })
-*/
