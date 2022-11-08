@@ -49,7 +49,6 @@ function subtractHours(date, hours){
 app.get('/info', async function (req, res) {
 
     cleanedArray = arrUnique(globalArray)
-    console.log(cleanedArray);
     res.status(200).json({info: cleanedArray})
 
     globalArray = []
@@ -69,54 +68,6 @@ app.post('/info', jsonParser, async function (req, res){
 
 
 })
-
-async function urlsArray() {
-    const array = []
-
-    for (let i = 0; i < usernames.length; i++) {
-        const user = usernames[i];
-    
-        const chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
-
-        await fetch(chessURL, {
-            method: 'GET',
-        })
-            .then(res => res.json())
-            .then(json => {
-                
-                // Do something...
-                var chessUser = json
-
-                for (let g = 0; g < chessUser.games.length; g++) {
-                    const chessGame = chessUser.games[g];
-                    array.push(chessGame.url)
-                }
-
-            })
-            .catch(err => console.log(err));
-
-    }
-    return array
-
-    
-}
-
-function indexing(error, response, body){
-
-
-    if(error || response.statusCode !== 200)
-    {
-        return console.log(error)
-    }
-
-    var chessUser = JSON.parse(body)
-    
-    for (let g = 0; g < chessUser.games.length; g++) {
-        const chessGame = chessUser.games[g];
-        array.push(chessGame.url)
-    }
-}
-
 
 
 
@@ -141,7 +92,7 @@ function chessQuery(chessURL) {
 
 async function gamesFilter(userJson) {
     let gamesArray = []
-    
+
     let chessGames = userJson.games;
     for (let i = 0; i < chessGames.length; i++) {
         const currentGame = chessGames[i];
@@ -154,7 +105,7 @@ async function gamesFilter(userJson) {
         let id = currentGame.url.substring(32, currentGame.url.length) 
         let date = pgnArray[2].substring(7, pgnArray[2].length - 2)
         let time = pgnArray[19].substring(10, pgnArray[19].length - 2)
-        
+
         var termination = pgnArray[16].substring(14, pgnArray[16].length - 2)
         let terminationNoUser = termination.split(" ");
         let userOfTermination = terminationNoUser.shift()
@@ -181,30 +132,31 @@ async function gamesFilter(userJson) {
         
         if(usernames.indexOf(white.username) != -1){
             if(usernames.indexOf(black.username) != -1){
-                gameJson.whitePlayer = "♞ " + white.username
-                gameJson.blackPlayer = "♞ " + black.username
 
-                if (white.result == 'win' ) {
-                    gameJson.winnerPlayer = "♞ " + white.username
-                    gameJson.defeatedPlayer = "♞ " + black.username
-                
-                }
-                if (black.result == 'win') {
-                    gameJson.winnerPlayer = "♞ " + black.username
-                    gameJson.defeatedPlayer = "♞ " + white.username
+                if(gmt5Date.getHours() == 3 && gmt5Date.getMinutes() <= 50 ){
+
+                    console.log(gmt5Date.getHours() + ':' + gmt5Date.getMinutes());
+
+                    gameJson.whitePlayer = "♞ " + white.username
+                    gameJson.blackPlayer = "♞ " + black.username
     
+                    if (white.result == 'win' ) {
+                        gameJson.winnerPlayer = "♞ " + white.username
+                        gameJson.defeatedPlayer = "♞ " + black.username
+                    
+                    }
+                    if (black.result == 'win') {
+                        gameJson.winnerPlayer = "♞ " + black.username
+                        gameJson.defeatedPlayer = "♞ " + white.username
+        
+                    }
+                    if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
+                        gameJson.winnerPlayer = '❌';
+                        gameJson.defeatedPlayer = '❌'
+                    }
+                   
+                    gamesArray.push(gameJson)
                 }
-                if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
-                    gameJson.winnerPlayer = '❌';
-                    gameJson.defeatedPlayer = '❌'
-                }
-                //if(currentGame.url )
-                
-                const toFindDuplicates = val => val.filter((item, index) => val.indexOf(item) !== index)
-                const duplicateElements = toFindDuplicates(val);
-
-                gamesArray.push(gameJson)
-
 
             }
 
@@ -213,11 +165,6 @@ async function gamesFilter(userJson) {
     }
 
     globalArray.push(...gamesArray)
-    /*
-    if(globalArray.length < usernames.length){
-        globalArray.push(gamesArray)
-
-    }*/
 }
 
 function arrUnique(arr) {  
@@ -236,7 +183,7 @@ function arrUnique(arr) {
 
 const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
-const databaseid = "7b1833b8cd2844fe880b6c2437910d3f";
+const databaseid = "ee631e3afa1146269baf2d38bde66d78";
 
 
 async function queryDB(gameUrl) {

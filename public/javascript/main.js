@@ -11,7 +11,7 @@ postInTableBtn.disabled = true
 const currentDate = new Date();
 const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
 
-var playersArray = []
+var gamesArray = []
 
 
 async function getInfo()
@@ -23,8 +23,8 @@ async function getInfo()
     })
     const data = await res.json()
 
-    playersArray = data.info
-    insertRows(playersArray)
+    gamesArray = data.info
+    insertRows(gamesArray)
 
 }
 
@@ -46,34 +46,27 @@ async function postInfo(url)
 }
 
 
-function insertRows(playersArray) {
-    for (let i = 0; i < playersArray.length; i++) {
+function insertRows(gamesArray){
 
-        const playerGames = playersArray[i];
-
-
-        for (let ii = 0; ii < playerGames.length; ii++) {
-            const game = playerGames[ii];
+        for (let i = 0; i < gamesArray.length; i++) {
+            const game = gamesArray[i];
 
             //#region Insert on table
 
             const table = document.getElementById('tabla-registro');
-
-            table.innerHTML += '<tr><td>'+ game.gameTitle +'</td><td>'+ game.winnerPlayer +'</td><td>'+ game.defeatedPlayer +'</td><td>'+ game.date +'</td><td>'+ game.termination +'</td><td><a href="' + game.url + '">' + game.url + '</a></td><td>'+ game.whitePlayer +'</td><td>'+ game.blackPlayer +'</td></tr>'        
+            var date = new Date(game.date)
+            table.innerHTML += '<tr><td>'+ game.gameTitle + ' ' + game.gameId + '</td><td>'+ game.winnerPlayer +'</td><td>'+ game.defeatedPlayer +'</td><td>' + date +'</td><td>'+ game.termination +'</td><td><a href="' + game.url + '">' + game.url + '</a></td><td>'+ game.whitePlayer +'</td><td>'+ game.blackPlayer +'</td></tr>'        
             
             postOnNotion(game)
 
             //#endregion
 
-            console.log('player:', i, 'game:', ii, 'inserting in table...');
+            console.log('player:', i, 'game:', i, 'inserting in table...');
 
             
         }
 
-
-    }
-
-    playersArray = []
+    gamesArray = []
 
 }
 
@@ -115,7 +108,6 @@ currentMonthBtn.addEventListener('click', function(e) {
 
  postInTableBtn.addEventListener('click', function(e) {
     e.preventDefault()
-
 
     getInfo()
 
