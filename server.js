@@ -8,6 +8,7 @@ const { response } = require('express');
 const cors = require('cors')
 const path = require('path')
 const { Client } = require('@notionhq/client')
+const fetch = require('node-fetch');	//npm install node-fetch
 
 const jsonParser = bodyParser.json()
 const router = express.Router()
@@ -31,12 +32,26 @@ app.listen(PORT, function name() {
     console.log("Starting proxy at: " + PORT);
 })
 
+const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
 var globalArray = []
 
 
+const currentDate = new Date();
+
+function subtractHours(date, hours){
+
+    date.setHours(date.getHours() - hours);
+
+    return date;
+}
+
 
 app.get('/info', async function (req, res) {
-    res.status(200).json({info: globalArray})
+
+    cleanedArray = arrUnique(globalArray)
+    console.log(cleanedArray);
+    res.status(200).json({info: cleanedArray})
+
     globalArray = []
 })
 
@@ -54,6 +69,55 @@ app.post('/info', jsonParser, async function (req, res){
 
 
 })
+
+async function urlsArray() {
+    const array = []
+
+    for (let i = 0; i < usernames.length; i++) {
+        const user = usernames[i];
+    
+        const chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
+
+        await fetch(chessURL, {
+            method: 'GET',
+        })
+            .then(res => res.json())
+            .then(json => {
+                
+                // Do something...
+                var chessUser = json
+
+                for (let g = 0; g < chessUser.games.length; g++) {
+                    const chessGame = chessUser.games[g];
+                    array.push(chessGame.url)
+                }
+
+            })
+            .catch(err => console.log(err));
+
+    }
+    return array
+
+    
+}
+
+function indexing(error, response, body){
+
+
+    if(error || response.statusCode !== 200)
+    {
+        return console.log(error)
+    }
+
+    var chessUser = JSON.parse(body)
+    
+    for (let g = 0; g < chessUser.games.length; g++) {
+        const chessGame = chessUser.games[g];
+        array.push(chessGame.url)
+    }
+}
+
+
 
 
 function chessQuery(chessURL) {
@@ -75,19 +139,7 @@ function chessQuery(chessURL) {
 }
 
 
-const currentDate = new Date();
-const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
-
-
-function subtractHours(date, hours){
-
-    date.setHours(date.getHours() - hours);
-
-    return date;
-}
-
-function gamesFilter(userJson) {
-
+async function gamesFilter(userJson) {
     let gamesArray = []
     
     let chessGames = userJson.games;
@@ -126,7 +178,7 @@ function gamesFilter(userJson) {
 
         }
 
-
+        
         if(usernames.indexOf(white.username) != -1){
             if(usernames.indexOf(black.username) != -1){
                 gameJson.whitePlayer = "♞ " + white.username
@@ -146,18 +198,33 @@ function gamesFilter(userJson) {
                     gameJson.winnerPlayer = '❌';
                     gameJson.defeatedPlayer = '❌'
                 }
+                //if(currentGame.url )
+                
+                const toFindDuplicates = val => val.filter((item, index) => val.indexOf(item) !== index)
+                const duplicateElements = toFindDuplicates(val);
+
                 gamesArray.push(gameJson)
+
 
             }
 
         }
 
     }
-    
-    if(globalArray.length < 8){
+
+    globalArray.push(...gamesArray)
+    /*
+    if(globalArray.length < usernames.length){
         globalArray.push(gamesArray)
 
-    }
+    }*/
+}
+
+function arrUnique(arr) {  
+    var clean = arr.filter((itm, index, self) =>
+        index === self.findIndex((t) => (t.gameId === itm.gameId && t.gameUrl === itm.gameUrl)))
+
+    return clean;
 }
 
 
@@ -186,7 +253,6 @@ async function queryDB(gameUrl) {
             ],
         }
     });
-    console.log('response', response.results);
     return response
 }
 
@@ -279,8 +345,6 @@ app.post('/notion', jsonParser, async function (req, res) {
         {
             if((await notionQuery).results.length == 0)
             {
-                console.log(notionQuery)
-
                 postInDB(game)
                 console.log("SUCCESS")
     

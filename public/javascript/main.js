@@ -45,6 +45,7 @@ async function postInfo(url)
     console.log(res);
 }
 
+
 function insertRows(playersArray) {
     for (let i = 0; i < playersArray.length; i++) {
 
@@ -79,11 +80,15 @@ function insertRows(playersArray) {
 currentMonthBtn.addEventListener('click', function(e) {
     e.preventDefault()
     
+
+
     for (let i = 0; i < usernames.length; i++) {
         const user = usernames[i];
 
         //formato https://api.chess.com/pub/player/{username}/games/{YYYY}/{MM}
         const chessURL = 'https://api.chess.com/pub/player/' + user.toLowerCase() + '/games/' + currentDate.getFullYear() + '/' + ("0" + (currentDate.getMonth() + 1)).slice(-2)
+        
+        
         postInfo(chessURL)
     }
     postInTableBtn.disabled = false
