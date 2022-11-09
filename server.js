@@ -84,7 +84,7 @@ function chessQuery(chessURL) {
         return console.log(error)
     }
         var chessUser = JSON.parse(body)
-
+    	console.log(chessUser)
         gamesFilter(chessUser)
 
     })
@@ -182,8 +182,6 @@ function arrUnique(arr) {
 
 
 
-
-
 const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
 const databaseid = "ee631e3afa1146269baf2d38bde66d78";
@@ -275,7 +273,6 @@ async function postInDB(game) {
     })
     
 }
-
 
 app.post('/notion', jsonParser, async function (req, res) {
 
