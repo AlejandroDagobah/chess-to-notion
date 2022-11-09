@@ -1,7 +1,7 @@
 
-//const baseUrl = 'https://chess-to-notion.onrender.com'
+//const baseUrl = 'http://localhost:3001'
 
-const baseUrl = 'http://localhost:3001'
+const baseUrl = 'https://chess-to-notion.onrender.com'
 const inputDate = document.getElementById('input-date')
 const currentMonthBtn = document.getElementById('currentMonth')
 const customMonthBtn = document.getElementById('customMonth')
