@@ -24,8 +24,9 @@ async function getInfo()
     const data = await res.json()
 
     gamesArray = data.info
-    insertRows(gamesArray)
+    console.log(gamesArray);
 
+    insertRows(gamesArray)
 }
 
 async function postInfo(url)

@@ -49,6 +49,7 @@ function subtractHours(date, hours){
 app.get('/info', async function (req, res) {
 
     cleanedArray = arrUnique(globalArray)
+    console.log(cleanedArray);
     res.status(200).json({info: cleanedArray})
 
     globalArray = []
@@ -63,6 +64,8 @@ app.post('/info', jsonParser, async function (req, res){
         res.status(200).send({status: 'failed'})        
     }
     res.status(200).send({status: 'recived'})
+
+    console.log('Obtained', parcel);
 
     chessQuery(parcel)
 
