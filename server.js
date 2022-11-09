@@ -84,7 +84,6 @@ function chessQuery(chessURL) {
         return console.log(error)
     }
         var chessUser = JSON.parse(body)
-    	console.log(chessUser)
         gamesFilter(chessUser)
 
     })
@@ -166,6 +165,7 @@ async function gamesFilter(userJson) {
         }
 
     }
+    console.log(gamesArray)
 
     globalArray.push(...gamesArray)
 }
