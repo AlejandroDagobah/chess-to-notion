@@ -54,3 +54,7 @@ form button{
     cursor: pointer;
     border-radius: 3px;
 }
+
+.inputText, #submit-btn{
+    color: black;
+}

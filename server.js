@@ -32,10 +32,14 @@ app.listen(PORT, function name() {
     console.log("Starting proxy at: " + PORT);
 })
 
-const usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo', 'Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
+
+let usernames
+
 var globalArray = []
 
+const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
 
+var databaseid
 const currentDate = new Date();
 
 function subtractHours(date, hours){
@@ -49,12 +53,36 @@ function subtractHours(date, hours){
 app.get('/info', async function (req, res) {
 
     cleanedArray = arrUnique(globalArray)
-    console.log(cleanedArray);
     res.status(200).json({info: cleanedArray})
+    console.log(cleanedArray);
 
     globalArray = []
 })
 
+app.post('/databaseID', jsonParser, async function(req, res) {
+    const {parcel, isHighElo} = req.body
+
+    if(!parcel){
+        res.status(200).send({status: 'failed'})        
+
+    }else{
+        res.status(200).send({status: 'recived'})
+        databaseid = parcel
+
+        if (isHighElo == true){
+            usernames = ['sami181', 'LDGZCH', 'JMGZCH', 'wilkachimbo']
+        
+        }else{
+            usernames = ['Zeratul2022', 'JFyoyu777', 'Luligamer1', 'Samueljanu']
+        }
+
+        console.log("GROUP HIGH", isHighElo, usernames);
+
+
+        
+    }
+    
+})
 
 app.post('/info', jsonParser, async function (req, res){
     const {parcel} = req.body
@@ -65,8 +93,6 @@ app.post('/info', jsonParser, async function (req, res){
     }
     res.status(200).send({status: 'recived'})
 
-    console.log('Obtained', parcel);
-
     chessQuery(parcel)
 
 
@@ -74,8 +100,8 @@ app.post('/info', jsonParser, async function (req, res){
 
 
 
-function chessQuery(chessURL) {
 
+function chessQuery(chessURL) {
 
     request({url: chessURL}, (error, response, body) =>{
 
@@ -118,54 +144,61 @@ async function gamesFilter(userJson) {
         
         var gmt5Date = subtractHours(new Date(date + ' ' + time + ' GMT-5'), 10)
         
-        const gameJson = {
-            gameId: id,
-            gameTitle: '🏆',
-            winnerPlayer:'',
-            defeatedPlayer: '',
-            date: gmt5Date.toISOString(), //no sobreescribir en notion las que ya estan hechas
-            termination: termination, // eliminar la primera palabra de la razón de la victoria ej: 'won by checkmate'
-            url: currentGame.url,
-            whitePlayer: '',
-            blackPlayer: ''
 
-        }
+        if(isNaN(gmt5Date) == false){
 
-        
-        if(usernames.indexOf(white.username) != -1){
-            if(usernames.indexOf(black.username) != -1){
 
-                if(gmt5Date.getHours() == 3 && gmt5Date.getMinutes() <= 50 ){
-
-                    console.log(gmt5Date.getHours() + ':' + gmt5Date.getMinutes());
-
-                    gameJson.whitePlayer = "♞ " + white.username
-                    gameJson.blackPlayer = "♞ " + black.username
-    
-                    if (white.result == 'win' ) {
-                        gameJson.winnerPlayer = "♞ " + white.username
-                        gameJson.defeatedPlayer = "♞ " + black.username
-                    
-                    }
-                    if (black.result == 'win') {
-                        gameJson.winnerPlayer = "♞ " + black.username
-                        gameJson.defeatedPlayer = "♞ " + white.username
-        
-                    }
-                    if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
-                        gameJson.winnerPlayer = '❌';
-                        gameJson.defeatedPlayer = '❌'
-                    }
-                   
-                    gamesArray.push(gameJson)
-                }
+            
+            const gameJson = {
+                gameId: id,
+                gameTitle: '🏆',
+                winnerPlayer:'',
+                defeatedPlayer: '',
+                date: gmt5Date.toISOString(), //no sobreescribir en notion las que ya estan hechas
+                termination: termination, // eliminar la primera palabra de la razón de la victoria ej: 'won by checkmate'
+                url: currentGame.url,
+                whitePlayer: '',
+                blackPlayer: ''
 
             }
 
+
+            if(usernames.indexOf(black.username) != -1){
+                if(usernames.indexOf(white.username) != -1){
+
+                    console.log(usernames, black.username, white.username, gmt5Date);
+
+                    if(gmt5Date.getHours() == 3 && gmt5Date.getMinutes() <= 50 && gmt5Date.getDay() >= 1 && gmt5Date.getDay() <= 5){
+
+                        gameJson.whitePlayer = "♞ " + white.username
+                        gameJson.blackPlayer = "♞ " + black.username
+        
+                        if (white.result == 'win' ) {
+                            gameJson.winnerPlayer = "♞ " + white.username
+                            gameJson.defeatedPlayer = "♞ " + black.username
+                        
+                        }
+                        if (black.result == 'win') {
+                            gameJson.winnerPlayer = "♞ " + black.username
+                            gameJson.defeatedPlayer = "♞ " + white.username
+            
+                        }
+                        if(white.result == 'stalemate' || black.result == 'stalemate' || white.result == 'insufficient' || black.result == 'insufficient' || white.result == 'agreed' || black.result == 'agreed' || white.result == 'repetition' || black.result == 'repetition'){
+                            gameJson.winnerPlayer = '❌';
+                            gameJson.defeatedPlayer = '❌'
+                        }
+
+                        //console.log(gameJson);
+                    
+                        gamesArray.push(gameJson)
+                    }
+
+                }
+
+            }
         }
 
     }
-    console.log(gamesArray)
 
     globalArray.push(...gamesArray)
 }
@@ -176,15 +209,6 @@ function arrUnique(arr) {
 
     return clean;
 }
-
-
-
-
-
-
-const notion = new Client({auth: "secret_Q9yioL3FNmSl7AsFL8JKwkeoUoUnoV8jsIJHfRxlZIM"});
-
-const databaseid = "ee631e3afa1146269baf2d38bde66d78";
 
 
 async function queryDB(gameUrl) {
@@ -271,6 +295,10 @@ async function postInDB(game) {
             }
         }
     })
+    
+}
+
+async function getUsernames() {
     
 }
 
